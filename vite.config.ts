@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { figmaAssetsPlugin } from './vite-plugin-figma-assets'
 
 export default defineConfig({
   // ✅ Base path - важно для правильного разрешения путей
@@ -12,6 +13,8 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
+    // ✅ Добавляем плагин для обработки figma:asset импортов
+    figmaAssetsPlugin(),
   ],
   resolve: {
     // Force Vite to always resolve 'three' to the same instance
@@ -42,8 +45,12 @@ export default defineConfig({
       '@splinetool/react-spline',
       '@splinetool/runtime',
       'three',
+      'process/browser',
+      'buffer',
     ],
-    exclude: [],
+    exclude: [
+      // Исключаем проблемные модули из pre-bundling
+    ],
     // ✅ Force pre-bundling для стабильности
     force: false,
     // ✅ Эти зависимости должны быть prebundled
@@ -53,6 +60,9 @@ export default defineConfig({
         global: 'globalThis',
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
       },
+      // Поддержка CommonJS модулей
+      platform: 'browser',
+      target: 'es2020',
     },
   },
   // 🚀 PRODUCTION BUILD OPTIMIZATION
@@ -83,17 +93,17 @@ export default defineConfig({
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
-          const name = assetInfo.name || '';
+          const name = assetInfo.name || ''
           if (/\.(png|jpe?g|gif|svg|webp|avif)$/i.test(name)) {
-            return 'assets/images/[name]-[hash][extname]';
+            return 'assets/images/[name]-[hash][extname]'
           }
           if (/\.(woff2?|ttf|otf|eot)$/i.test(name)) {
-            return 'assets/fonts/[name]-[hash][extname]';
+            return 'assets/fonts/[name]-[hash][extname]'
           }
           if (/\.css$/i.test(name)) {
-            return 'assets/css/[name]-[hash][extname]';
+            return 'assets/css/[name]-[hash][extname]'
           }
-          return 'assets/[name]-[hash][extname]';
+          return 'assets/[name]-[hash][extname]'
         },
       },
       
