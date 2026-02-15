@@ -144,3 +144,37 @@ export default defineConfig({
     ],
   },
 })
+
+
+
+import { defineConfig } from "vite";
+import path from "node:path";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [
+    react(),
+
+    // Resolve figma:asset/* imports during Vercel/Vite build
+    {
+      name: "resolve-figma-asset-protocol",
+      enforce: "pre",
+      resolveId(source) {
+        if (source.startsWith("figma:asset/")) {
+          const file = source.replace("figma:asset/", "");
+          // ВЫБЕРИ ОДИН РЕАЛЬНЫЙ ПУТЬ
+          return path.resolve(__dirname, "src/assets", file);
+          // или если хочешь отдельную папку:
+          // return path.resolve(__dirname, "src/figma-assets", file);
+        }
+        return null;
+      },
+    },
+  ],
+
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+});
